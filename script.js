@@ -62,11 +62,7 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 const displayMovements = function (movements) {
-
-  // movements.forEach(function(val, index) {
-  //   console.log(val, index)
-  // })
-
+  containerMovements.innerHTML = '';
   movements.forEach(function (currMov, index) {
     const type = currMov > 0 ? 'deposit' : 'withdrawal';
 
@@ -81,11 +77,24 @@ const displayMovements = function (movements) {
     `;
 
     containerMovements.insertAdjacentHTML('afterbegin', html);
-
   });
 };
 
 displayMovements(account1.movements);
+
+// computing usernames
+const createUsernames = function (accs) {
+  accs.forEach(function (acc) {
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map(currVal => currVal[0])
+      .join('');
+  });
+};
+
+createUsernames(accounts);
+console.log(accounts);
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -141,3 +150,45 @@ displayMovements(account1.movements);
 // currencies.forEach((val, key, map) => {
 //   console.log(`${key} => ${val}`);
 // });
+
+// ----
+
+const checkDogs = function (dogsJulia, dogsKate) {
+  const dogsJuliaCorrected = dogsJulia.slice();
+  dogsJuliaCorrected.splice(0, 1);
+  dogsJuliaCorrected.splice(-2);
+
+  const dogs = dogsJuliaCorrected.concat(dogsKate);
+
+  dogs.forEach(function (dog, index) {
+    if (dog >= 3) {
+      console.log(
+        `Dog number ${index + 1} is an adult, and is ${dog} years old.`
+      );
+    } else {
+      console.log(`Dog number ${index + 1} is still a puppy.`);
+    }
+  });
+};
+// checkDogs([3, 5, 2, 12, 7], [4, 1, 15, 8, 3]);
+checkDogs([9, 16, 6, 8, 3], [10, 5, 6, 1, 4]);
+
+// -----------
+// const p = [3, 1, 4, 3, 2];
+// const x = p.map(function(value, index, arr) {
+//   console.log(value, index, arr);
+//   return value * 2;
+// })
+// console.log(x);
+
+// let movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+// const eurToUsd = 1.1;
+
+// // const converted = movements.map(function(currValue, index) {
+// //   return Math.trunc(currValue * eurToUsd);
+// // })
+// // arrow function demo, same code
+// const converted = movements.map((currValue) => Math.trunc(currValue * eurToUsd))
+
+// console.log(movements);
+// console.log(converted);
