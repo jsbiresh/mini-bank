@@ -71,16 +71,14 @@ const displayMovements = function (movements) {
           <div class="movements__type movements__type--${type}">${
       index + 1
     } ${type}</div>
-          <div class="movements__value">${currMov} €</div>
+          <div class="movements__value">${currMov}€</div>
         </div>
-    
     `;
-
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
 
-displayMovements(account1.movements);
+// displayMovements(account1.movements);
 
 const calcDisplayBalance = function (movements) {
   const balance = movements.reduce(function (acc, curr) {
@@ -88,13 +86,14 @@ const calcDisplayBalance = function (movements) {
   }, 0);
   setTimeout(function () {
     labelBalance.textContent = `${balance} €`;
-  }, 2000);
+  }, 800);
 };
 
-calcDisplayBalance(account1.movements);
+// calcDisplayBalance(account1.movements);
 
-const calcDisplaySummary = function (movements) {
-  const incomes = movements
+const calcDisplaySummary = function (account) {
+
+  const incomes = account.movements
     .filter(function (curr) {
       return curr > 0;
     })
@@ -102,14 +101,34 @@ const calcDisplaySummary = function (movements) {
       return acc + curr;
     }, 0);
   labelSumIn.textContent = `${incomes} €`;
-  const outcomes = movements.filter(function (curr) {
-    return curr < 0;
-  }).reduce(function(acc, curr) {
-    return acc + curr; 
-  }, 0)
+  const outcomes = account.movements
+    .filter(function (curr) {
+      return curr < 0;
+    })
+    .reduce(function (acc, curr) {
+      return acc + curr;
+    }, 0);
   labelSumOut.textContent = `${Math.abs(outcomes)} €`;
+
+  const interest = account.movements
+    .filter(function (curr) {
+      return curr > 0;
+    })
+    .map(function (deposit) {
+      return (deposit * account.interestRate) / 100;
+    })
+    .filter(function (interest, index, arr) {
+      // console.log(arr);
+      return interest >= 1;
+    })
+    .reduce(function (acc, curr) {
+      return acc + curr;
+    }, 0);
+  // labelSumInterest.textContent = Math.trunc(Number(interest));
+  labelSumInterest.textContent = interest.toFixed(2);
+
 };
-calcDisplaySummary(account1.movements);
+// calcDisplaySummary(account1.movements);
 
 // computing usernames
 const createUsernames = function (accs) {
@@ -123,6 +142,37 @@ const createUsernames = function (accs) {
 };
 
 createUsernames(accounts);
+
+// Event Handlers
+let currentAccount;
+btnLogin.addEventListener('click', function (e) {
+  // prevent the page from loading.
+  e.preventDefault();
+
+  currentAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+  if (currentAccount?.pin === Number(inputLoginPin.value) ) {
+    
+    // Display UI and Message
+    labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
+    containerApp.style.opacity = 100;
+
+    // clear the input fields
+    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginPin.blur();
+
+    // Display Movements
+    displayMovements(currentAccount.movements);
+
+    // Display balance
+    calcDisplayBalance(currentAccount.movements);
+
+    // Display Summary
+    // calcDisplaySummary(currentAccount.movements);    
+    calcDisplaySummary(currentAccount);    
+  }
+});
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -283,6 +333,46 @@ createUsernames(accounts);
 //   return avgHumanAge;
 // }
 
-// const firstDataSet = calcAverageHumanAge([5, 2, 4, 1, 15, 8, 3]);
-// const secondDataSet = calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]);
+// // same function above one, but using chaining
+// const calcAverageHumanAgeUsingChaining = function(ages) {
+
+//   // if dog age is <= 2, then humanAge = 2 * dogAge
+//   // if dog age is > 2, then humanAge = 16 + dogAge * 4
+//   // first use map
+
+//   const avgHumanAge = ages.map(function(currAge, index) {
+//     if (currAge <= 2)
+//       return 2 * currAge;
+//     else if (currAge > 2)
+//       return 16 + (currAge * 4)
+//   })
+//   .filter(function(currAge) {
+//     return currAge >= 18
+//   })
+//   .reduce((acc, age, i, arr) => acc + age / arr.length, 0);
+//   return avgHumanAge;
+// }
+
+// const firstDataSet = calcAverageHumanAgeUsingChaining([5, 2, 4, 1, 15, 8, 3]);
+// const secondDataSet = calcAverageHumanAgeUsingChaining([16, 6, 10, 5, 6, 1, 4]);
 // console.log(firstDataSet, secondDataSet);
+
+// let movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+// // console.log(movements)
+// // const findDemo = movements.find(function(curr, index) {
+// //   return curr < 0;
+// // })
+// // console.log(findDemo);
+
+// console.log(accounts);
+// let account = accounts.find(function(account) {
+//   return account.owner === 'Jessica Davis';
+// })
+// console.log(account);
+
+// account = '';
+// for (let acc of accounts) {
+//   if (acc.owner === 'Jessica Davis') account = acc;
+// }
+// console.log('got it', account)
