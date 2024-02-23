@@ -61,6 +61,7 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+// Function to display movements
 const displayMovements = function (movements) {
   containerMovements.innerHTML = '';
   movements.forEach(function (currMov, index) {
@@ -78,21 +79,21 @@ const displayMovements = function (movements) {
   });
 };
 
-// displayMovements(account1.movements);
-
-const calcDisplayBalance = function (movements) {
-  const balance = movements.reduce(function (acc, curr) {
-    return acc + curr;
-  }, 0);
-  setTimeout(function () {
-    labelBalance.textContent = `${balance} €`;
-  }, 800);
+// Function to compute usernames
+const createUsernames = function (accs) {
+  accs.forEach(function (acc) {
+    acc.username = acc.owner
+      .toLowerCase()
+      .split(' ')
+      .map(currVal => currVal[0])
+      .join('');
+  });
 };
 
-// calcDisplayBalance(account1.movements);
+createUsernames(accounts);
 
+// Function to calculate and display summary
 const calcDisplaySummary = function (account) {
-
   const incomes = account.movements
     .filter(function (curr) {
       return curr > 0;
@@ -124,24 +125,30 @@ const calcDisplaySummary = function (account) {
     .reduce(function (acc, curr) {
       return acc + curr;
     }, 0);
-  // labelSumInterest.textContent = Math.trunc(Number(interest));
   labelSumInterest.textContent = interest.toFixed(2);
-
-};
-// calcDisplaySummary(account1.movements);
-
-// computing usernames
-const createUsernames = function (accs) {
-  accs.forEach(function (acc) {
-    acc.username = acc.owner
-      .toLowerCase()
-      .split(' ')
-      .map(currVal => currVal[0])
-      .join('');
-  });
 };
 
-createUsernames(accounts);
+// Function to calculate and display balance
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce(function (acc, curr) {
+    return acc + curr;
+  }, 0);
+  setTimeout(function () {
+    labelBalance.textContent = `${balance} €`;
+  }, 800);
+};
+
+// Function to update UI
+const updateUI = function (acc) {
+  // Display movements
+  displayMovements(acc.movements);
+
+  // Display balance
+  calcDisplayBalance(acc.movements);
+
+  // Display summary
+  calcDisplaySummary(acc);
+};
 
 // Event Handlers
 let currentAccount;
@@ -152,10 +159,11 @@ btnLogin.addEventListener('click', function (e) {
   currentAccount = accounts.find(
     acc => acc.username === inputLoginUsername.value
   );
-  if (currentAccount?.pin === Number(inputLoginPin.value) ) {
-    
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
     // Display UI and Message
-    labelWelcome.textContent = `Welcome back, ${currentAccount.owner.split(' ')[0]}`;
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
     containerApp.style.opacity = 100;
 
     // clear the input fields
@@ -165,14 +173,63 @@ btnLogin.addEventListener('click', function (e) {
     // Display Movements
     displayMovements(currentAccount.movements);
 
+    // Display Summary
+    calcDisplaySummary(currentAccount);
+
     // Display balance
     calcDisplayBalance(currentAccount.movements);
-
-    // Display Summary
-    // calcDisplaySummary(currentAccount.movements);    
-    calcDisplaySummary(currentAccount);    
   }
 });
+
+btnLoan.addEventListener('click', function (e) {
+  // prevent default
+  e.preventDefault();
+
+  // Fetch data from Loan Text Input
+  const amount = Number(inputLoanAmount.value);
+
+  //
+  if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
+    // Add movement
+    currentAccount.movements.push(amount);
+    console.log('went in IF block');
+
+    // Update UI
+    updateUI(currentAccount);
+  }
+  inputLoanAmount.value = '';
+});
+
+btnClose.addEventListener('click', function (e) {
+  // prevent default
+  e.preventDefault();
+
+  // before deleting check if the username is correct with PIN
+  if (
+    inputCloseUsername.value === currentAccount.username &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    const index = accounts.findIndex(function (currAccount) {
+      return currAccount.username === currentAccount.username;
+    });
+
+    // Delete Account
+    accounts.splice(index, 1);
+
+    // Hide UI
+    containerApp.style.opacity = 0;
+
+    // UI for changing LOG in to get started
+    labelWelcome.textContent = `Log in to get started`;
+  }
+  // clear the input fields
+  inputCloseUsername
+
+.value = inputClosePin.value = '';
+});
+
+
+// --------------------------------------------------------------------
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -376,3 +433,10 @@ btnLogin.addEventListener('click', function (e) {
 //   if (acc.owner === 'Jessica Davis') account = acc;
 // }
 // console.log('got it', account)
+
+// ------------------------
+let movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+console.log(movements.includes(-130));
+
+// ---------------------------------------------------------------------------
