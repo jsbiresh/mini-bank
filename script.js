@@ -62,9 +62,13 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
 // Function to display movements
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
   containerMovements.innerHTML = '';
-  movements.forEach(function (currMov, index) {
+
+  // sort the movements
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+
+  movs.forEach(function (currMov, index) {
     const type = currMov > 0 ? 'deposit' : 'withdrawal';
 
     const html = `
@@ -223,9 +227,16 @@ btnClose.addEventListener('click', function (e) {
     labelWelcome.textContent = `Log in to get started`;
   }
   // clear the input fields
-  inputCloseUsername
+  inputCloseUsername.value = inputClosePin.value = '';
+});
 
-.value = inputClosePin.value = '';
+let sorted = false;
+btnSort.addEventListener('click', function(e) {
+  // prevent default
+  e.preventDefault();
+
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
 });
 
 
